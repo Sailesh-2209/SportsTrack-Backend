@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
+    CORS_HEADERS = "Content-Type"
     SECRET_KEY = os.environ.get("SECRET_KEY")
     MAIL_SERVER = os.environ.get("MAIL_SERVER")
     MAIL_PORT = int(os.environ.get("MAIL_PORT") or "1234")

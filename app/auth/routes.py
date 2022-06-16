@@ -84,15 +84,29 @@ def signup():
 @auth.route("/signin", methods=["POST"])
 def signin():
     data = json.loads(request.data)
-    if not "email" in data or not "password" in data:
-        return "Email or password not provided in request body", 400
+    err_res = {
+        'error_code': None,
+        'message': None
+    }
+    if not "email" in data:
+        err_res['error_code'] = 0
+        err_res['message'] = "Email not provided"
+        return err_res, 400
+    elif not "password" in data:
+        err_res['error_code'] = 1
+        err_res['message'] = "Password not provided"
     else:
         email = data["email"]
         password = data["password"]
         userinfo = User.query.filter_by(email=email).first()
+
         if (userinfo == None):
-            return "User does not exist", 404
+            err_res['error_code'] = 0
+            err_res['message'] = "User does not exist"
+            return err_res, 404
+
         ok = userinfo.verify_password(password)
+
         if (ok):
             exp_period = 60 * 60 * 24
             exp = int(time.time()) + exp_period
@@ -104,7 +118,9 @@ def signin():
             token = jwt.encode(payload, os.environ.get("SECRET_KEY"))
             return token, 200
         else:
-            return "Wrong Password", 404
+            err_res['error_code'] = 1
+            err_res['message'] = "Wrong password"
+            return err_res, 404
 
 
 @auth.route("/verifytoken", methods=["POST"])
